@@ -1,10 +1,22 @@
 public class Cliente {
     private String numeroCuenta;
     private String nombre;
+    private String cedula;
     private int saldo;
 
-    public Cliente(String nombre) {
+    public Cliente(String numeroCuenta, String nombre, String cedula, int saldo) {
+        this.numeroCuenta = numeroCuenta;
         this.nombre = nombre;
+        this.cedula = cedula;
+        this.saldo = saldo;
+    }
+
+    public String getCedula() {
+        return cedula;
+    }
+
+    public void setCedula(String cedula) {
+        this.cedula = cedula;
     }
 
     public int getSaldo() {

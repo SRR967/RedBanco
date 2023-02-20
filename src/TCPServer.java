@@ -1,11 +1,11 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PipedReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class TCPServer {
     private static final Map<String, Cliente> usuarios = new HashMap<>();
@@ -31,31 +31,41 @@ public class TCPServer {
 
     public void protocol(Socket socket) throws Exception {
         String message = fromNetwork.readLine();
-        if (message.startsWith("REGISTRAR")){
-            String user = message.substring(10);
+        String [] subMessage= message.split("-");
+
+        if (subMessage[0].contains("REGISTRAR")){
+            String user = subMessage[1];
+            String cc = subMessage[2];
 
             if(usuarios.containsKey(user)){
                 String answer = "Usuario ya existe";
                 toNetwork.println(answer);
             }else{
-                
 
-                usuarios.put(user,new Cliente(user));
+                usuarios.put(cc,new Cliente("1023",user,cc,0));
 
-                for (Map.Entry<String, Cliente> entry : usuarios.entrySet()) {
-                    String clave = entry.getKey();
-                    String valor = entry.getValue().getNombre();
-                    toNetwork.println(clave+" "+valor);
-                }
                 toNetwork.println("Usuario creado con exito");
             }
+        }else if (subMessage[0].contains("CONSULTAR")){
+            String cc= subMessage[1];
+            if (!usuarios.containsKey(cc)){
+                toNetwork.println("Usuario no encontrado");
+            }else {
+
+                String nombre = usuarios.get(cc).getNombre();
+                String cuenta = usuarios.get(cc).getNumeroCuenta();
+                String saldo = String.valueOf(usuarios.get(cc).getSaldo());
+                toNetwork.println(nombre+cuenta+cc+saldo);
+            }
+
         }
 
-
-
-
-
         System.out.println("[Server] From client: " + message);
+    }
+
+    private String crearNumeroCuenta(){
+        Random random = new Random();
+        return String.valueOf(random.nextInt(100) +1);
     }
 
     private void createStreams(Socket socket) throws Exception {
