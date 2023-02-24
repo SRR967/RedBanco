@@ -37,7 +37,7 @@ public class TCPServer {
             String user = subMessage[1];
             String cc = subMessage[2];
 
-            if(usuarios.containsKey(user)){
+            if(usuarios.containsKey(cc)){
                 String answer = "Usuario ya existe";
                 toNetwork.println(answer);
             }else{
@@ -46,18 +46,65 @@ public class TCPServer {
 
                 toNetwork.println("Usuario creado con exito");
             }
-        }else if (subMessage[0].contains("CONSULTAR")){
-            String cc= subMessage[1];
-            if (!usuarios.containsKey(cc)){
-                toNetwork.println("Usuario no encontrado");
-            }else {
+        }else{
 
-                String nombre = usuarios.get(cc).getNombre();
-                String cuenta = usuarios.get(cc).getNumeroCuenta();
-                String saldo = String.valueOf(usuarios.get(cc).getSaldo());
-                toNetwork.println(nombre+cuenta+cc+saldo);
+            if (subMessage[0].contains("CONSULTAR")){
+                String cc= subMessage[1];
+                if (!usuarios.containsKey(cc)){
+                    toNetwork.println("Usuario no encontrado");
+                }else {
+
+                    String nombre = usuarios.get(cc).getNombre();
+                    String cuenta = usuarios.get(cc).getNumeroCuenta();
+                    String saldo = String.valueOf(usuarios.get(cc).getSaldo());
+                    toNetwork.println("Nombre usuario: "+nombre+", Numero de cuenta:"+cuenta+", Cedula: "+cc+", Su saldo es: "+saldo);
+                }
+            }else{
+                if(subMessage[0].contains("DEPOSITAR")){
+                    String cc = subMessage[1];
+                    String deposito = subMessage[2];
+                    int depositoUsuario = Integer.parseInt(deposito);
+                    if(!usuarios.containsKey(cc)){
+                        toNetwork.println("Usuario no encontrado");
+                    }else{
+                        if(depositoUsuario == 0){
+                            toNetwork.println("Valor ingresado igual cero, por favor ingrese un valor");
+                        }if(depositoUsuario > 0){
+                            int saldo = usuarios.get(cc).getSaldo();
+                            int depo = saldo+depositoUsuario;
+                            usuarios.get(cc).setSaldo(depo);
+                            int nuevo = usuarios.get(cc).getSaldo();
+                            toNetwork.println("su saldo es:"+nuevo );
+                        }
+
+                    }
+                }else{
+                    if(subMessage[0].contains("RETIRAR")){
+                        String cc = subMessage[1];
+                        String retiro = subMessage[2];
+                        int valorRetirar = Integer.parseInt(retiro);
+                        if(!usuarios.containsKey(cc)){
+                            toNetwork.println("Usuario no encontrado");
+                        }else{
+                            if(valorRetirar == 0){
+                                toNetwork.println("Valor ingresado igual cero, por favor ingrese un valor");
+                            }else{
+                                if(usuarios.get(cc).getSaldo() < valorRetirar){
+                                    toNetwork.println("Saldo insufuciente: el valor que desea retirar es mayor a su saldo");
+                                }if(usuarios.get(cc).getSaldo() > valorRetirar){
+
+                                    int saldo = usuarios.get(cc).getSaldo();
+                                    int retirar = saldo-valorRetirar;
+                                    usuarios.get(cc).setSaldo(retirar);
+                                    int nuevo = usuarios.get(cc).getSaldo();
+                                    toNetwork.println("su saldo actualizado es:"+nuevo );
+
+                                }
+                            }
+                        }
+                    }
+                }
             }
-
         }
 
         System.out.println("[Server] From client: " + message);
