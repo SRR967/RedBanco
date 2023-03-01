@@ -30,86 +30,92 @@ public class TCPServer {
     }
 
     public void protocol(Socket socket) throws Exception {
-        String message = fromNetwork.readLine();
-        String [] subMessage= message.split("-");
+        String message = "";
 
-        if (subMessage[0].contains("REGISTRAR")){
-            String user = subMessage[1];
-            String cc = subMessage[2];
 
-            if(usuarios.containsKey(cc)){
-                String answer = "Usuario ya existe";
-                toNetwork.println(answer);
-            }else{
+        while (!message.equalsIgnoreCase("Fin")) {
 
-                usuarios.put(cc,new Cliente("1023",user,cc,0));
+            message = fromNetwork.readLine();
 
-                toNetwork.println("Usuario creado con exito");
-            }
-        }else{
+            String [] subMessage= message.split("-");
 
-            if (subMessage[0].contains("CONSULTAR")){
-                String cc= subMessage[1];
-                if (!usuarios.containsKey(cc)){
-                    toNetwork.println("Usuario no encontrado");
-                }else {
+            if (subMessage[0].contains("REGISTRAR")){
+                String user = subMessage[1];
+                String cc = subMessage[2];
 
-                    String nombre = usuarios.get(cc).getNombre();
-                    String cuenta = usuarios.get(cc).getNumeroCuenta();
-                    String saldo = String.valueOf(usuarios.get(cc).getSaldo());
-                    toNetwork.println("Nombre usuario: "+nombre+", Numero de cuenta:"+cuenta+", Cedula: "+cc+", Su saldo es: "+saldo);
+                if(usuarios.containsKey(cc)){
+                    String answer = "Usuario ya existe";
+                    toNetwork.println(answer);
+                }else{
+
+                    usuarios.put(cc,new Cliente("1023",user,cc,0));
+
+                    toNetwork.println("Usuario creado con exito");
                 }
             }else{
-                if(subMessage[0].contains("DEPOSITAR")){
-                    String cc = subMessage[1];
-                    String deposito = subMessage[2];
-                    int depositoUsuario = Integer.parseInt(deposito);
-                    if(!usuarios.containsKey(cc)){
-                        toNetwork.println("Usuario no encontrado");
-                    }else{
-                        if(depositoUsuario == 0){
-                            toNetwork.println("Valor ingresado igual cero, por favor ingrese un valor");
-                        }if(depositoUsuario > 0){
-                            int saldo = usuarios.get(cc).getSaldo();
-                            int depo = saldo+depositoUsuario;
-                            usuarios.get(cc).setSaldo(depo);
-                            int nuevo = usuarios.get(cc).getSaldo();
-                            toNetwork.println("su saldo es:"+nuevo );
-                        }
 
+                if (subMessage[0].contains("CONSULTAR")){
+                    String cc= subMessage[1];
+                    if (!usuarios.containsKey(cc)){
+                        toNetwork.println("Usuario no encontrado");
+                    }else {
+
+                        String nombre = usuarios.get(cc).getNombre();
+                        String cuenta = usuarios.get(cc).getNumeroCuenta();
+                        String saldo = String.valueOf(usuarios.get(cc).getSaldo());
+                        toNetwork.println("Nombre usuario: "+nombre+", Numero de cuenta:"+cuenta+", Cedula: "+cc+", Su saldo es: "+saldo);
                     }
                 }else{
-                    if(subMessage[0].contains("RETIRAR")){
+                    if(subMessage[0].contains("DEPOSITAR")){
                         String cc = subMessage[1];
-                        String retiro = subMessage[2];
-                        int valorRetirar = Integer.parseInt(retiro);
+                        String deposito = subMessage[2];
+                        int depositoUsuario = Integer.parseInt(deposito);
                         if(!usuarios.containsKey(cc)){
                             toNetwork.println("Usuario no encontrado");
                         }else{
-                            if(valorRetirar == 0){
+                            if(depositoUsuario == 0){
                                 toNetwork.println("Valor ingresado igual cero, por favor ingrese un valor");
+                            }if(depositoUsuario > 0){
+                                int saldo = usuarios.get(cc).getSaldo();
+                                int depo = saldo+depositoUsuario;
+                                usuarios.get(cc).setSaldo(depo);
+                                int nuevo = usuarios.get(cc).getSaldo();
+                                toNetwork.println("su saldo es:"+nuevo );
+                            }
+
+                        }
+                    }else{
+                        if(subMessage[0].contains("RETIRAR")){
+                            String cc = subMessage[1];
+                            String retiro = subMessage[2];
+                            int valorRetirar = Integer.parseInt(retiro);
+                            if(!usuarios.containsKey(cc)){
+                                toNetwork.println("Usuario no encontrado");
                             }else{
-                                if(usuarios.get(cc).getSaldo() < valorRetirar){
-                                    toNetwork.println("Saldo insufuciente: el valor que desea retirar es mayor a su saldo");
-                                }if(usuarios.get(cc).getSaldo() > valorRetirar){
+                                if(valorRetirar == 0){
+                                    toNetwork.println("Valor ingresado igual cero, por favor ingrese un valor");
+                                }else{
+                                    if(usuarios.get(cc).getSaldo() < valorRetirar){
+                                        toNetwork.println("Saldo insufuciente: el valor que desea retirar es mayor a su saldo");
+                                    }if(usuarios.get(cc).getSaldo() > valorRetirar){
 
-                                    int saldo = usuarios.get(cc).getSaldo();
-                                    int retirar = saldo-valorRetirar;
-                                    usuarios.get(cc).setSaldo(retirar);
-                                    int nuevo = usuarios.get(cc).getSaldo();
-                                    toNetwork.println("su saldo actualizado es:"+nuevo );
+                                        int saldo = usuarios.get(cc).getSaldo();
+                                        int retirar = saldo-valorRetirar;
+                                        usuarios.get(cc).setSaldo(retirar);
+                                        int nuevo = usuarios.get(cc).getSaldo();
+                                        toNetwork.println("su saldo actualizado es:"+nuevo );
 
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            System.out.println("[Server] From client: " + message);
         }
 
-        System.out.println("[Server] From client: " + message);
     }
-
     private String crearNumeroCuenta(){
         Random random = new Random();
         return String.valueOf(random.nextInt(100) +1);

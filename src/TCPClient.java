@@ -1,12 +1,11 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class TCPClient {
     private static final Scanner SCANNER = new Scanner(System.in);
     private static final Scanner sc = new Scanner(System.in);
+
     public static final String SERVER = "localhost";
     public static final int PORT = 3400;
     private PrintWriter toNetwork;
@@ -27,9 +26,10 @@ public class TCPClient {
 
     public void protocol(Socket socket) throws Exception {
 
-        int opcion =0;
+        int opcion;
 
         do {
+
             System.out.println("MENU");
             System.out.println("Ingrese el numero de la accion que desea hacer");
             System.out.println("1. Registrar una cuenta de banco");
@@ -38,7 +38,8 @@ public class TCPClient {
             System.out.println("4. Retirar dinero");
             System.out.println("5. Leer archivo de texto");
             System.out.println("6. Salir");
-            opcion= sc.nextInt();
+
+            opcion = Integer.parseInt(sc.nextLine());
 
             switch (opcion){
 
@@ -77,15 +78,61 @@ public class TCPClient {
                 case 5:
                     System.out.println("Ingrese el nombre del archivo a leer");
                     fromUser = SCANNER.nextLine();
+                    BufferedReader br = null;
+                    try {
+                        // Crear un objeto BufferedReader al que se le pasa
+                        //   un objeto FileReader con el nombre del fichero
+                        br = new BufferedReader(new FileReader(fromUser));
+                        String texto;
+
+                        // Leer la primera línea, guardando en un String
+                        while((texto = br.readLine()) != null){
+                            // Repetir mientras no se llegue al final del fichero
+
+                            toNetwork.println(texto);
+                            fromServer = fromNetwork.readLine();
+                            System.out.println( "[Client] From server: "+ fromServer);
+                        }
+
+                    }
+                    // Captura de excepción por fichero no encontrado
+                    catch (FileNotFoundException ex) {
+                        System.out.println("Error: Fichero no encontrado");
+                        ex.printStackTrace();
+                    }
+                    // Captura de cualquier otra excepción
+                    catch(Exception ex) {
+                        System.out.println("Error de lectura del fichero");
+                        ex.printStackTrace();
+                    }
+                    // Asegurar el cierre del fichero en cualquier caso
+                    finally {
+                        try {
+                            // Cerrar el fichero si se ha podido abrir
+                            if(br != null) {
+                                br.close();
+                            }
+                        }
+                        catch (Exception ex) {
+                            System.out.println("Error al cerrar el fichero");
+                            ex.printStackTrace();
+                        }
+                    }
                     break;
 
                 case 6:
                     System.out.println("Saliendo del sistema...");
                     break;
 
+                default:
+                    System.out.println("Error de comando");
+                    break;
+
 
             }
         }while (opcion != 6);
+        sc.close();
+        SCANNER.close();
 
 
         /*
