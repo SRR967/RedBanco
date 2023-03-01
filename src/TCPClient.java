@@ -82,7 +82,7 @@ public class TCPClient {
                     try {
                         // Crear un objeto BufferedReader al que se le pasa
                         //   un objeto FileReader con el nombre del fichero
-                        br = new BufferedReader(new FileReader(fromUser));
+                        br = new BufferedReader(new FileReader("src/"+fromUser));
                         String texto;
 
                         // Leer la primera línea, guardando en un String
@@ -99,6 +99,7 @@ public class TCPClient {
                     catch (FileNotFoundException ex) {
                         System.out.println("Error: Fichero no encontrado");
                         ex.printStackTrace();
+                        break;
                     }
                     // Captura de cualquier otra excepción
                     catch(Exception ex) {
