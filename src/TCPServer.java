@@ -48,7 +48,7 @@ public class TCPServer {
                     toNetwork.println(answer);
                 }else{
 
-                    usuarios.put(cc,new Cliente("1023",user,cc,0));
+                    usuarios.put(cc,new Cliente(user,cc,0));
 
                     toNetwork.println("Usuario creado con exito");
                 }
@@ -61,9 +61,8 @@ public class TCPServer {
                     }else {
 
                         String nombre = usuarios.get(cc).getNombre();
-                        String cuenta = usuarios.get(cc).getNumeroCuenta();
                         String saldo = String.valueOf(usuarios.get(cc).getSaldo());
-                        toNetwork.println("Nombre usuario: "+nombre+", Numero de cuenta:"+cuenta+", Cedula: "+cc+", Su saldo es: "+saldo);
+                        toNetwork.println("Nombre usuario: "+nombre+", Cedula: "+cc+", Su saldo es: "+saldo);
                     }
                 }else{
                     if(subMessage[0].contains("DEPOSITAR")){
@@ -115,10 +114,6 @@ public class TCPServer {
             System.out.println("[Server] From client: " + message);
         }
 
-    }
-    private String crearNumeroCuenta(){
-        Random random = new Random();
-        return String.valueOf(random.nextInt(100) +1);
     }
 
     private void createStreams(Socket socket) throws Exception {
